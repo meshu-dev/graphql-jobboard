@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql'; 
-import { getJobs, getJob, getJobsByCompany, createJob } from './db/jobs.js'; 
+import { getJobs, getJob, getJobsByCompany, createJob, updateJob, deleteJob } from './db/jobs.js'; 
 import { getCompany } from './db/companies.js'; 
 
 export const resolvers = {
@@ -28,7 +28,11 @@ export const resolvers = {
     createJob: (_root, { input: { title, description } }) => {
       const companyId = 'FjcJCHJALA4i';
       return createJob({ companyId, title, description });
-    }
+    },
+    updateJob: (_root, { input: { id, title, description } }) => {
+      return updateJob({ id, title, description });
+    },
+    deleteJob: (_root, { id }) => deleteJob(id)
   },
   Job: {
     date: (job) => toIsoDate(job.createdAt),
