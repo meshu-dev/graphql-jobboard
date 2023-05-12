@@ -27,7 +27,7 @@ async function getContext({ req }) {
 const apolloServer = new ApolloServer({ typeDefs, resolvers });
 await apolloServer.start();
 
-app.use('/graphql', apolloMiddleware(apolloServer), { context: getContext });
+app.use('/graphql', apolloMiddleware(apolloServer, { context: getContext }));
 
 app.listen({ port: PORT }, () => {
   console.log(`Server running on port ${PORT}`);
