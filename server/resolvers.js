@@ -25,9 +25,11 @@ export const resolvers = {
     }
   },
   Mutation: {
-    createJob: (_root, { input: { title, description } }) => {
-      const companyId = 'FjcJCHJALA4i';
-      return createJob({ companyId, title, description });
+    createJob: (_root, { input: { title, description } }, { user }) => {
+      if (!user) {
+        throw unauthorizedError('Missing authentication');
+      }
+      return createJob({ companyId: user.companyId, title, description });
     },
     updateJob: (_root, { input: { id, title, description } }) => {
       return updateJob({ id, title, description });
@@ -45,6 +47,12 @@ export const resolvers = {
 
 function toIsoDate(value) {
   return value.slice(0, 'yyyy-mm-dd'.length);
+}
+
+function unauthorizedError(message) {
+  return new GraphQLError(message, {
+    extensions: { code: 'UNAUTHORIZED' },
+  });
 }
 
 function notFoundError(message) {
