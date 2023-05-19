@@ -4,7 +4,7 @@ import { companyLoader, getCompany } from './db/companies.js';
 
 export const resolvers = {
   Query: {
-    jobs: () => getJobs(),
+    jobs: (_root, { limit, offset }) => getJobs(limit, offset),
     job: async (_root, { id }) => {
       const job = await getJob(id);
 
