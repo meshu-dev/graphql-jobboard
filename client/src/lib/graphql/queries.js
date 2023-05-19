@@ -13,86 +13,68 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const apolloClient = new ApolloClient({
+export const apolloClient = new ApolloClient({
   link: concat(authLink, httpLink),
   cache: new InMemoryCache(),
 });
 
-export async function getCompany(id) {
-  const query = gql`
-    query CompanyById($id: ID!) {
-      company(id: $id) {
-        id
-        name
-        description
-        jobs {
-          id
-          date
-          title
-        }
-      }
-    }  
-  `
-  const { data } = await apolloClient.query({
-    query,
-    variables: { id },
-  });
-  return data.company;
-};
+const jobDetailFragment = gql`
+  fragment JobDetail on Job {
+    id
+    date
+    title
+    company {
+      id
+      name
+    }
+    description
+  }
+`;
 
-export async function getJob(id) {
-  const query = gql`
-    query JobById($id: ID!) {
-      job(id: $id) {
-        id
-        title
-        company {
-          id
-          name
-          description
-        }
-        description
-      }
-    }  
-  `
-  const { data } = await apolloClient.query({
-    query,
-    variables: { id },
-  });
-  return data.job;
-};
-
-export async function getJobs() {
-  const query = gql`
-    query Jobs {
+export const companyByIdQuery = gql`
+  query CompanyById($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
       jobs {
         id
         date
         title
-        company {
-          id
-          name
-          description
-        }
-        description
-      }
-    }  
-  `
-  const { data } = await apolloClient.query({ query });
-  return data.jobs;
-};
-
-export async function createJob({ title, description }) {
-  const mutation = gql`
-    mutation CreateJob($input: CreateJobInput!) {
-      job: createJob(input: $input) {
-        id
       }
     }
-  `;
-  const { data } = await apolloClient.mutate({
-    mutation,
-    variables: { input: { title, description } },
-  });
-  return data.job;
-};
+  }
+`;
+
+export const jobByIdQuery = gql`
+  query JobById($id: ID!) {
+    job(id: $id) {
+      ...JobDetail
+    }
+  }
+  ${jobDetailFragment}
+`;
+
+export const jobsQuery = gql`
+  query Jobs {
+    jobs {
+      id
+      date
+      title
+      company {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const createJobMutation = gql`
+  mutation CreateJob($input: CreateJobInput!) {
+    job: createJob(input: $input) {
+      ...JobDetail
+    }
+  }
+  ${jobDetailFragment}
+`;
+
